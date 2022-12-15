@@ -1,0 +1,9 @@
+distributionName: invoke-lambda-demo
+initDeployConfig:
+  template: deployment-plan.yaml # The path to the deployment plan template, find more info here: https://docs.attini.io/getting-started/create-your-first-deployment-plan.html
+  stackName: ${environment}-${distributionName}-deployment-plan # The stack name for the init deployment, this stack will for example be called "dev-hello-world-deployment-plan"
+
+package: # When you use the Attini CLI to "package" a distribution, these instructions will be used, find more info here https://docs.attini.io/api-reference/attini-configuration.html
+  prePackage:
+    commands: # These shell commands will be executed on a temporary copy of your files, so they will not affect your source files
+      - attini configure set-dist-id --random

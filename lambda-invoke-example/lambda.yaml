@@ -1,0 +1,32 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  AttiniEnvironmentName:
+    Type: String
+
+Resources:
+
+  HelloWorldLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub Lambda that returns hello ${AttiniEnvironmentName} world
+      FunctionName: !Sub ${AttiniEnvironmentName}-echo-function
+      InlineCode: |
+          def lambda_handler(event, context):
+
+            return event;
+      Handler: index.lambda_handler
+      Runtime: python3.9
+
+
+  HelloWorldLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${HelloWorldLambda}
+      RetentionInDays: 30
+
+
+Outputs:
+  FunctionName:
+    Value: !Ref HelloWorldLambda

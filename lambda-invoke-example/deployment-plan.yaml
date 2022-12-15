@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform:
+  - AttiniDeploymentPlan
+  - AWS::Serverless-2016-10-31
+
+Parameters:
+  AttiniEnvironmentName:
+    Type: String
+
+Resources:
+
+  EchoLambdaDeploymentPlan:
+    Type: Attini::Deploy::DeploymentPlan
+    Properties:
+      DeploymentPlan:
+        - Name: Deploy_EchoLambda
+          Type: AttiniCfn
+          Properties:
+            StackName: !Sub ${AttiniEnvironmentName}-echo-lambda
+            Template: /lambda.yaml
+        - Name: Invoke_EchoLambda
+          Type: AttiniLambdaInvoke
+          Parameters:
+            FunctionName.$: $.output.Deploy_EchoLambda.FunctionName
+            Payload:
+              DistributionName.$: $.deploymentOriginData.distributionName
+
+
