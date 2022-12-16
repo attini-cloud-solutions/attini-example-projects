@@ -1,0 +1,35 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform:
+  - AttiniDeploymentPlan
+  - AWS::Serverless-2016-10-31
+
+Parameters:
+  AttiniEnvironmentName:
+    Type: String
+
+Resources:
+
+  DeployCfnDeploymentPlan:
+    Type: Attini::Deploy::DeploymentPlan
+    Properties:
+      DeploymentPlan:
+        - Name: Deploy_CounterDatabase
+          Type: AttiniCfn
+          Properties:
+            StackName: !Sub ${AttiniEnvironmentName}-counter-database
+            Template: /database.yaml
+            ConfigFile: /parent-config.yaml
+        - Name: Deploy_CounterLambda
+          Type: AttiniCfn
+          Properties:
+            StackName: !Sub ${AttiniEnvironmentName}-counter-lambda
+            Template: /lambda.yaml
+            ConfigFile: /lambda-config.yaml
+            Variables:
+              TableNameVariable.$: $.output.Deploy_CounterDatabase.TableName
+        - Name: Invoke_CounterLambda
+          Type: AttiniLambdaInvoke
+          Parameters:
+            FunctionName.$: $.output.Deploy_CounterLambda.FunctionName
+
+

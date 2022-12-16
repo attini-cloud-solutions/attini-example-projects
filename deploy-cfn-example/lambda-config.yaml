@@ -1,0 +1,4 @@
+extends: /parent-config.yaml
+parameters:
+  MemorySize: 512
+  TableName: ${TableNameVariable}

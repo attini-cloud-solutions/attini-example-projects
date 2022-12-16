@@ -1,0 +1,75 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  AttiniEnvironmentName:
+    Type: String
+  TableName:
+    Type: String
+  MemorySize:
+    Type: String
+Resources:
+
+  HelloWorldLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub Lambda that returns hello ${AttiniEnvironmentName} world
+      FunctionName: !Sub ${AttiniEnvironmentName}-counter-function
+      MemorySize: !Ref MemorySize
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableName
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TableName
+      InlineCode: |
+          import os
+          import boto3        
+
+          dynamodb_client = boto3.client("dynamodb")
+        
+          def lambda_handler(event, context):
+              counterItem = dynamodb_client.get_item(
+                 TableName=os.environ["TABLE_NAME"],
+                 Key={
+                   'Id': {
+                       'S': 'counter-id'
+                   }
+                 }   
+              )
+        
+              counter = int(counterItem["Item"]["counter"]["N"]) if "Item" in counterItem else 0
+              counter += 1
+        
+              dynamodb_client.update_item(
+                 TableName=os.environ["TABLE_NAME"],
+                 Key={
+                   'Id': {
+                       'S': 'counter-id'
+                   }
+                 },
+                 AttributeUpdates={
+                   'counter': {
+                       'Value': {
+                           'N': str(counter)
+                       }
+                   }
+                 },
+              )
+            
+              return f"I have been invoked {counter} times!"
+
+      Handler: index.lambda_handler
+      Runtime: python3.9
+
+
+  HelloWorldLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${HelloWorldLambda}
+      RetentionInDays: 30
+
+
+Outputs:
+  FunctionName:
+    Value: !Ref HelloWorldLambda
