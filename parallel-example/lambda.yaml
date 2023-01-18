@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  StepName:
+    Type: String
+
+Resources:
+
+  DeployNameLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description:  Lambda that returns the name of the step that deployed it
+      Environment:
+        Variables:
+          STEP_NAME: !Ref StepName
+      InlineCode: |
+          import os
+          def lambda_handler(event, context):
+            stepName = os.environ["STEP_NAME"]
+            return f"I was deployed by step with name: {stepName}"
+      Handler: index.lambda_handler
+      Runtime: python3.9
+
+
+  DeployNameLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${DeployNameLambda}
+      RetentionInDays: 30
+
+Outputs:
+  FunctionName:
+    Value: !Ref DeployNameLambda

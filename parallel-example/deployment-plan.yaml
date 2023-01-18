@@ -1,0 +1,42 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform:
+  - AttiniDeploymentPlan
+  - AWS::Serverless-2016-10-31
+
+Resources:
+
+  ParallelDemo:
+    Type: Attini::Deploy::DeploymentPlan
+    Properties:
+      DeploymentPlan:
+        - Name: deploy-my-lambdas
+          Type: Parallel
+          Branches:
+            -
+              - Name: DeployLambdaNumber1
+                Type: AttiniCfn
+                Properties:
+                  StackName: lambda-nr-1
+                  Template: /lambda.yaml
+                  Parameters:
+                    StepName.$ : $$.State.Name
+              - Name: InvokeLambdaNumber1
+                Type: AttiniLambdaInvoke
+                Parameters:
+                  FunctionName.$: $.output.DeployLambdaNumber1.FunctionName
+            -
+              - Name: DeployLambdaNumber2
+                Type: AttiniCfn
+                Properties:
+                  StackName: lambda-nr-2
+                  Template: /lambda.yaml
+                  Parameters:
+                    StepName.$: $$.State.Name
+              - Name: InvokeLambdaNumber2
+                Type: AttiniLambdaInvoke
+                Parameters:
+                  FunctionName.$: $.output.DeployLambdaNumber2.FunctionName
+
+
+
+
