@@ -7,6 +7,10 @@ Resources:
   CustomRunner:
     Type: Attini::Deploy::Runner
     Properties:
+      Image: public.ecr.aws/amazonlinux/amazonlinux:latest
+      Startup:
+        Commands:
+          - yum install jq -y
       RunnerConfiguration:
         IdleTimeToLive: 600
 
