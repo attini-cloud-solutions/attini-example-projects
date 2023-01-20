@@ -8,8 +8,6 @@ Resources:
     Type: Attini::Deploy::Runner
     Properties:
       RoleArn: !GetAtt RunnerRole.Arn
-      RunnerConfiguration:
-        IdleTimeToLive: 600
 
   RunnerDemo:
     Type: Attini::Deploy::DeploymentPlan
