@@ -5,4 +5,3 @@ if cdk diff CdkProjectStack --fail; then
 else
   echo change-detected > ${ATTINI_OUTPUT}
 fi
-cd ..
