@@ -9,7 +9,7 @@ Resources:
     Properties:
       RoleArn: !GetAtt RunnerRole.Arn
 
-  RunnerDemo:
+  ManualApprovalDemo:
     Type: Attini::Deploy::DeploymentPlan
     Properties:
       DeploymentPlan:
@@ -33,6 +33,7 @@ Resources:
             Runner: CdkRunner
             Commands:
               - cd cdk-project
+              - npm install
               - cdk deploy
 
 

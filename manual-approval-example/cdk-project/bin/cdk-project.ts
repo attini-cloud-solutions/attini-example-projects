@@ -2,7 +2,6 @@
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import { CdkProjectStack } from '../lib/cdk-project-stack';
-import { SnsTopic} from 'aws-cdk-lib/aws-events-targets';
 
 const app = new cdk.App();
 new CdkProjectStack(app, 'CdkProjectStack', {

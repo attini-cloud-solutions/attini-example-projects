@@ -1,6 +1,5 @@
 cd cdk-project
-npm install -g
-cdk --version
+npm install
 if cdk diff CdkProjectStack --fail; then
   echo no-change > ${ATTINI_OUTPUT}
 else
