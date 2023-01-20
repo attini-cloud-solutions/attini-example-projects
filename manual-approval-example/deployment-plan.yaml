@@ -1,0 +1,73 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform:
+  - AttiniDeploymentPlan
+  - AWS::Serverless-2016-10-31
+
+Resources:
+  CdkRunner:
+    Type: Attini::Deploy::Runner
+    Properties:
+      RoleArn: !GetAtt RunnerRole.Arn
+      RunnerConfiguration:
+        IdleTimeToLive: 600
+
+  RunnerDemo:
+    Type: Attini::Deploy::DeploymentPlan
+    Properties:
+      DeploymentPlan:
+        - Name: GetChangeSet
+          Type: AttiniRunnerJob
+          Properties:
+            Runner: CdkRunner
+            Commands:
+               - bash get-change-set.sh
+        - Name: "Need approval?"
+          Type: Choice
+          Condition:
+            Variable: $.output.GetChangeSet.result
+            StringEquals: change-detected
+          IsTrue:
+            - Name: ManualApproval
+              Type: AttiniManualApproval
+        - Name: ApplyChanges
+          Type: AttiniRunnerJob
+          Properties:
+            Runner: CdkRunner
+            Commands:
+              - cd cdk-project
+              - cdk deploy
+
+
+
+  RunnerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: Attini runner task role
+      Path: /attini/
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: inline-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cloudformation:DescribeStacks
+                  - cloudformation:GetTemplate
+                Resource:
+                  - "*"
+              - Effect: Allow
+                Action:
+                  - sts:AssumeRole
+                Resource:
+                  - !Sub arn:aws:iam::${AWS::AccountId}:role/cdk*
+      ManagedPolicyArns:
+        - !Sub arn:aws:iam::${AWS::AccountId}:policy/attini-runner-basic-execution-policy-${AWS::Region}
+
+

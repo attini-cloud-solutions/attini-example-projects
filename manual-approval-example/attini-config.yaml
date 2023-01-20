@@ -1,0 +1,9 @@
+distributionName: attini-manual-approval-demo
+initDeployConfig:
+  template: deployment-plan.yaml
+  stackName: ${environment}-${distributionName}-deployment-plan
+
+package:
+  prePackage:
+    commands:
+      - attini configure set-dist-id --random
