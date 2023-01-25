@@ -1,0 +1,29 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform:
+  - AttiniDeploymentPlan
+  - AWS::Serverless-2016-10-31
+
+Parameters:
+  AttiniEnvironmentName:
+    Type: String
+
+Resources:
+
+  SamAppDeploymentPlan:
+    Type: Attini::Deploy::DeploymentPlan
+    Properties:
+      DeploymentPlan:
+        - Name: DeployLambdaDatabase
+          Type: AttiniCfn
+          Properties:
+            StackName: !Sub ${AttiniEnvironmentName}-lambda-database
+            Template: /database.yaml
+        - Name: DeploySamProject
+          Type: AttiniSam
+          Properties:
+            Project:
+              Path: /hello-world-app
+            StackName: !Sub ${AttiniEnvironmentName}-sam-lambda
+            Parameters:
+              TableName.$: $.output.DeployLambdaDatabase.TableName
+

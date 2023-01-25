@@ -1,0 +1,11 @@
+distributionName: sam-project #Rename to something meaningful and unique within your organisation
+initDeployConfig:
+  template: deployment-plan.yaml
+  stackName: ${environment}-${distributionName}-deployment-plan
+
+package:
+  prePackage:
+    commands:
+      - attini configure set-dist-id --random
+      - cd hello-world-app
+      - sam build --use-container
