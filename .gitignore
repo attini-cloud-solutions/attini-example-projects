@@ -128,5 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# attini_dist
+# attini package folder
 attini_dist
