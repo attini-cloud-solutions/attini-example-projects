@@ -7,7 +7,7 @@ dynamodb_client = boto3.client("dynamodb")
 
 def lambda_handler(event, context):
 
-    if isinstance(event["queryStringParameters"], dict) and "save_me" in event["queryStringParameters"]:
+    if "queryStringParameters" in event and "save_me" in event["queryStringParameters"]:
         save_data(event["queryStringParameters"]["save_me"])
 
     return {
