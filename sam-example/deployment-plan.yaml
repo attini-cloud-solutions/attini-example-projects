@@ -13,7 +13,8 @@ Resources:
     Type: Attini::Deploy::DeploymentPlan
     Properties:
       DeploymentPlan:
-        - Name: DeployLambdaDatabase
+        - Name: DeployDatabase
+        - Name: DeployDatabase
           Type: AttiniCfn
           Properties:
             StackName: !Sub ${AttiniEnvironmentName}-lambda-database
@@ -25,5 +26,5 @@ Resources:
               Path: /hello-world-app
             StackName: !Sub ${AttiniEnvironmentName}-sam-lambda
             Parameters:
-              TableName.$: $.output.DeployLambdaDatabase.TableName
+              TableName.$: $.output.DeployDatabase.TableName
 
