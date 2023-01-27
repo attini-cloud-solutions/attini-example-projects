@@ -14,7 +14,6 @@ Resources:
     Properties:
       DeploymentPlan:
         - Name: DeployDatabase
-        - Name: DeployDatabase
           Type: AttiniCfn
           Properties:
             StackName: !Sub ${AttiniEnvironmentName}-lambda-database
