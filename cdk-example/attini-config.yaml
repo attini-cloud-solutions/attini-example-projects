@@ -1,0 +1,11 @@
+distributionName: cdk-demo
+initDeployConfig:
+  forceUpdate: true
+  template: deployment-plan.yaml
+  stackName: ${environment}-${distributionName}-deployment-plan
+
+package:
+  prePackage:
+    commands:
+      - npm install
+      - cdk synth --app "npx ts-node --prefer-ts-exts deployment-plan/deployment-plan.ts" > deployment-plan.yaml
