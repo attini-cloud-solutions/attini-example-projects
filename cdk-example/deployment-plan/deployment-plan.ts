@@ -4,38 +4,34 @@ import * as cdk from 'aws-cdk-lib';
 import { AttiniCdk, AttiniCfn, AttiniDeploymentPlanStack, AttiniLambdaInvoke, DeploymentPlan } from '@attini/cdk';
 import { Construct } from 'constructs';
 import { AttiniCdkDemoStack } from '../lib/attini-cdk-demo-stack';
-import { JsonPath } from 'aws-cdk-lib/aws-stepfunctions';
 import { stackId } from '../bin/attini-cdk-demo';
 
 export class DeploymentPlanStack extends AttiniDeploymentPlanStack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    let deployDatabaseStep = new AttiniCfn(this, 'deploy-database', {
+    const deployDatabaseStep = new AttiniCfn(this, 'DeployDatabase', {
       stackName: "demo-database",
       template: "/database.yaml"
     });
 
-
-    let deployCdkStep = new AttiniCdk(this, 'deploy-cdk-app', {
-      path: '/',
+    const deployCdkStep = new AttiniCdk(this, 'DeployCdkApp', {
+      path: './',
       buildCommands: 'npm install',
       stackConfiguration: [
         {
           parameters: {
-            [AttiniCdkDemoStack.databaseName]: JsonPath.stringAt(deployDatabaseStep.getOutputPath('TableName')),
-            [AttiniCdkDemoStack.databaseArn]:  JsonPath.stringAt(deployDatabaseStep.getOutputPath('DatabaseArn'))
-
+            [AttiniCdkDemoStack.databaseArn]: deployDatabaseStep.getOutput('DatabaseArn')
           }
         }
       ]
     });
 
-    let invokeLambdaStep = new AttiniLambdaInvoke(this, 'invokeLambda', {
-      functionName: JsonPath.stringAt(deployCdkStep.getOutputPath(stackId,AttiniCdkDemoStack.functionNameOutputId))
+    const invokeLambdaStep = new AttiniLambdaInvoke(this, 'InvokeLambda', {
+      functionName: deployCdkStep.getOutput(stackId, AttiniCdkDemoStack.functionNameOutputId)
     });
 
-    new DeploymentPlan(this, 'deploymentPlan', {
+    new DeploymentPlan(this, 'DeploymentPlan', {
       definition: deployDatabaseStep.next(deployCdkStep).next(invokeLambdaStep)
     })
   }
